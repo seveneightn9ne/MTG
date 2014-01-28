@@ -1,0 +1,11 @@
+---
+name: Centaur Courser
+color: green
+type: Creature
+subtype: Centaur Warrior
+cost:
+  green: 1
+  any: 3
+
+power: 3
+toughness: 3

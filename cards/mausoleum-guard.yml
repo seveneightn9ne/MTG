@@ -1,0 +1,32 @@
+---
+name: Mausoleum Guard
+color: white
+type: Creature
+subtype: Human Scout
+cost:
+  white: 1
+  any: 3
+
+power: 2
+toughness: 2
+
+abilities:
+  triggered:
+    - trigger: dies
+      action: summon
+      target: tokens
+      tokens:
+        - color: white
+          subtype: spirit
+          power: 1
+          toughness: 1
+          abilities:
+            static:
+              - flying
+        - color: white
+          subtype: spirit
+          power: 1
+          toughness: 1
+          abilities:
+            static:
+              - flying

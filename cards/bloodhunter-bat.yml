@@ -1,0 +1,24 @@
+---
+name: Bloodhunter Bat
+color: black
+type: Creature
+subtype: Bat
+cost:
+  black: 1
+  any: 3
+
+power: 2
+toughness: 2
+
+abilities:
+  static:
+    - flying
+  triggered:
+    - trigger: summon
+      action: give-life
+      target: owner-player
+      amount: 2
+    - trigger: summon
+      action: take-life
+      target: target-player
+      amount: 2

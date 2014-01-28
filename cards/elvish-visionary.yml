@@ -1,0 +1,17 @@
+---
+name: Elvish Visionary
+color: green
+type: Creature
+subtype: Elf Shaman
+cost:
+  green: 1
+  any: 1
+
+power: 1
+toughness: 1
+
+abilities:
+  triggered:
+    - trigger: enter-battlefield
+      action: draw-card
+      target: owner-player

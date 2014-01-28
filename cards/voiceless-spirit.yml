@@ -1,0 +1,16 @@
+---
+name: Voiceless Spirit
+color: white
+type: Creature
+subtype: Human Scout
+cost:
+  white: 1
+  any: 2
+
+power: 2
+toughness: 1
+
+abilities:
+  static:
+    - flying
+    - first-strike
