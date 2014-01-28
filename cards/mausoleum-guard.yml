@@ -13,9 +13,8 @@ toughness: 2
 abilities:
   triggered:
     - trigger: dies
-      action: summon
-      target: tokens
-      tokens:
+      action: summon-tokens
+      target:
         - color: white
           subtype: spirit
           power: 1
