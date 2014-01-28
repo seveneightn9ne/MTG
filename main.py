@@ -1,25 +1,6 @@
 import random
+from cards import Card
 MTG_COLORS = ["green", "blue", "red", "white", "black"]
-
-class Card(object):
-	def __init__(self, owner):
-		self.owner = owner
-		self.type = None
-		self.tapped = False
-	def tap(self):
-		self.tapped = True
-	def untap(self):
-		self.tapped = False
-	def upkeep(self):
-		pass
-
-class LandCard(Card):
-	def __init__(self, owner, color):
-		Card.__init__(self, owner)
-		self.color = color
-	def tap(self):
-		self.owner.manapool.add(color)
-		Card.tap(self)
 
 class Deck(object):
 	def __init__(self, owner):
@@ -27,7 +8,7 @@ class Deck(object):
 		self.owner = owner
 		pass
 	def add(self, card):
-		self.cards.push(card)
+		self.cards.append(card)
 	def draw(self):
 		return self.cards.pop()
 	def shuffle(self):
@@ -47,8 +28,6 @@ class ManaPool(object):
 	@property
 	def total(self):
 	    return sum(self.pool.values())
-
-	__getattr__(self)
 
 class Player(object):
 	def __init__(self, name):
@@ -75,12 +54,12 @@ class Player(object):
 p1 = Player("Dave")
 p2 = Player("Mike")
 
-[p1.deck.add(Card()) for _ in range(60)]
-[p2.deck.add(Card()) for _ in range(60)]
-p1.deck.add(LandCard("green"))
-p1.deck.add(LandCard("blue"))
+[p1.library.add(Card("swamp", p1)) for _ in range(60)]
+[p2.library.add(Card("plains", p2)) for _ in range(60)]
+p1.library.add(Card("forest", p1))
+p1.library.add(Card("island", p2))
 
-#GAME 
+#GAME
 p1.drawcard(7)
 p2.drawcard(7)
 #TODO who goes first?
@@ -90,5 +69,3 @@ while(True):
 	active.upkeep()
 	active.drawcard()
 	active.main()
-
-
