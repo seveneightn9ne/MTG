@@ -22,7 +22,7 @@ class Card(object):
   def __str__(self):
     r = self.data['name'] + " (" + self.data['type']
     if 'power' in self.data.keys() and 'toughness' in self.data.keys():
-      r += ", " + self.data['power'] + "/" + self.data['toughness']
+      r += ", " + str(self.data['power']) + "/" + str(self.data['toughness'])
     return  r + ")"
 
   def __repr__(self):

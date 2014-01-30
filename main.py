@@ -36,7 +36,7 @@ class ManaPool(object):
 			if amt > 0:
 				#need to pull colored mana
 				for color in self.pool.keys():
-					amt_color = self.pool["color"]
+					amt_color = self.pool[color]
 					self.pool[color] = max(0, amt_color - amt)
 					amt -= amt_color
 					if amt <= 0:
@@ -93,28 +93,27 @@ class Player(object):
 			if card.data["type"] == "Basic Land":
 				card.tap()
 		#place affordable creatures
-		for card in self.hand:
-			if card.data["type"] == "Creature":
-				cost = {'colorless': card.data["cost"]["colorless"]}
-				for m in card.data["cost"].keys():
-					#TODO eval colored mana before colorless!
-					if m == "colorless":
-						continue
-					elif self.manapool.get(m) < card.data["cost"][m]:
-						#can't afford this creature
-						return
-					cost[m] = cost.get(m, 0) + card.data["cost"][m]
-				if sum(cost.values()) > self.manapool.total:
+		for card in filter(lambda card: card.data["type"]=="Creature", self.hand):
+			cost = {'colorless': card.data["cost"].get("any", 0)}
+			for m in card.data["cost"].keys():
+				#TODO eval colored mana before colorless!
+				if m == "any":
+					continue
+				elif self.manapool.get(m) < card.data["cost"][m]:
 					#can't afford this creature
-					continue # to next creature
-				else:
-					for color in cost.keys():
-						if color != 'colorless':
-							self.manapool.pull(cost[color], color)
-					self.manapool.pull(cost['colorless'], 'colorless')
-					self.hand.remove(card)
-					self.table.add(card)
-					print self.name + " places " + str(card) + " on the table."
+					return
+				cost[m] = cost.get(m, 0) + card.data["cost"][m]
+			if sum(cost.values()) > self.manapool.total:
+				#can't afford this creature
+				continue # to next creature
+			else:
+				for color in cost.keys():
+					if color != 'colorless':
+						self.manapool.pull(cost[color], color)
+				self.manapool.pull(cost['colorless'], 'colorless')
+				self.hand.remove(card)
+				self.table.add(card)
+				print self.name + " places " + str(card) + " on the table."
 
 #pre game: load cards
 
@@ -124,7 +123,9 @@ p2 = Player("Mike")
 [p1.library.add(Card("swamp", p1)) for _ in range(60)]
 [p2.library.add(Card("plains", p2)) for _ in range(60)]
 p1.library.add(Card("forest", p1))
-p1.library.add(Card("island", p2))
+p2.library.add(Card("island", p2))
+p1.library.add(Card("elvish-visionary", p1))
+p2.library.add(Card("voiceless-spirit", p2))
 
 #GAME
 p1.drawcard(7)
