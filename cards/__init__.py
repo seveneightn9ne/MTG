@@ -19,8 +19,17 @@ class Card(object):
     self.owner = owner
     self.tapped = False
 
+  def __str__(self):
+    r = self.data['name'] + " (" + self.data['type']
+    if 'power' in self.data.keys() and 'toughness' in self.data.keys():
+      r += ", " + self.data['power'] + "/" + self.data['toughness']
+    return  r + ")"
+
+  def __repr__(self):
+    return self.__str__()
+
   def tap(self):
-    if self.data["type"] is "Basic Land":
+    if self.data["type"] == "Basic Land":
       self.owner.manapool.add(self.data["color"])
     self.tapped = True
 

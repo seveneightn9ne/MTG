@@ -10,7 +10,11 @@ class Deck(object):
 	def add(self, card):
 		self.cards.append(card)
 	def draw(self):
-		return self.cards.pop()
+		if len(self.cards) > 0:
+			return self.cards.pop()
+		else:
+			print self.owner.name + "'s deck is empty!"
+			return None
 	def shuffle(self):
 		random.shuffle(self.cards)
 
@@ -24,6 +28,26 @@ class ManaPool(object):
 			self.pool[color] += n
 	def get(self, color):
 		return self.pool[color]
+	def pull(self, amt, color="colorless"):
+		if color == "colorless":
+			amt_colorless = self.pool["colorless"]
+			self.pool["colorless"] = max(0, amt_colorless-amt)
+			amt -= amt_colorless
+			if amt > 0:
+				#need to pull colored mana
+				for color in self.pool.keys():
+					amt_color = self.pool["color"]
+					self.pool[color] = max(0, amt_color - amt)
+					amt -= amt_color
+					if amt <= 0:
+						break
+				if amt > 0:
+					raise Exception("Not enough mana in the mana pool!")
+		else:
+			if amt > self.pool[color]:
+				raise Exception("Not enough mana in the mana pool!")
+			else:
+				self.pool[color] -= amt
 
 	@property
 	def total(self):
@@ -38,9 +62,11 @@ class Player(object):
 		self.table = set([])
 		self.hand = set([])
 		self.name = name
+		self.canPlaceLand = True
 	def untap(self):
 		for card in self.table:
 			card.untap()
+			self.canPlaceLand = True
 	def upkeep(self):
 		for card in self.table:
 			card.upkeep()
@@ -48,6 +74,47 @@ class Player(object):
 		for i in range(n):
 			card = self.library.draw()
 			self.hand.add(card)
+			print self.name + " draws " + str(card)
+	def main(self):
+		#place land if able
+		if self.canPlaceLand:
+			# print self.name + " can place a land this turn."
+			for card in self.hand:
+				# print self.name + " looks at his " + str(card)
+				# print "it is a " + card.data["type"]
+				if card.data["type"] == "Basic Land":
+					self.hand.remove(card)
+					self.table.add(card)
+					print self.name + " places " + str(card) + " on the table."
+					self.canPlaceLand = False
+					break
+		#tap all lands
+		for card in self.table:
+			if card.data["type"] == "Basic Land":
+				card.tap()
+		#place affordable creatures
+		for card in self.hand:
+			if card.data["type"] == "Creature":
+				cost = {'colorless': card.data["cost"]["colorless"]}
+				for m in card.data["cost"].keys():
+					#TODO eval colored mana before colorless!
+					if m == "colorless":
+						continue
+					elif self.manapool.get(m) < card.data["cost"][m]:
+						#can't afford this creature
+						return
+					cost[m] = cost.get(m, 0) + card.data["cost"][m]
+				if sum(cost.values()) > self.manapool.total:
+					#can't afford this creature
+					continue # to next creature
+				else:
+					for color in cost.keys():
+						if color != 'colorless':
+							self.manapool.pull(cost[color], color)
+					self.manapool.pull(cost['colorless'], 'colorless')
+					self.hand.remove(card)
+					self.table.add(card)
+					print self.name + " places " + str(card) + " on the table."
 
 #pre game: load cards
 
@@ -64,8 +131,17 @@ p1.drawcard(7)
 p2.drawcard(7)
 #TODO who goes first?
 active = p1
+ticker = 0
 while(True):
+	print active.name + "'s turn!"
 	active.untap()
 	active.upkeep()
 	active.drawcard()
 	active.main()
+	if active == p1:
+		active = p2
+	else:
+		active = p1
+	ticker += 1
+	if ticker > 5:
+		break
